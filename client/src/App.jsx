@@ -6,6 +6,10 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
   const [movies, setMovies] = useState([])
+  const [showList, setShowList] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [showResults, setShowResults] = useState(false)
 
 useEffect(() => {
   fetch("http://localhost:3000/movies")
@@ -15,29 +19,60 @@ useEffect(() => {
   })
 }, [])
 
-  // [
-  //   {title: 'Mean Girls'},
-  //   {title: 'Hackers'},
-  //   {title: 'The Grey'},
-  //   {title: 'Sunshine'},
-  //   {title: 'Ex Machina'},
-  // ]
+const handleSearch = (s) => {
+  s.preventDefault()
+  const matches = movies.filter(({title}) =>
+    title.toLowerCase().includes(searchTerm.toLowerCase())
+)
+setSearchResults(matches)
+setShowResults(true)
+}
 
-
-const list = () => {
-  return (
-    <ul>
-    {movies.map(({title}) => (
-        <li key={title}>{`${title}`}</li>
-    ))}
-            </ul>
-  )
-};
   return (
     <>
+        <h1>Search Movies</h1>
+        <form onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Search for a movie"
+            value={searchTerm}
+            onChange={(s) => setSearchTerm(s.target.value)}
+            />
+            <button type='submit'>Search Movie</button>
+        </form>
+
+        {showResults && (
+          <ul>
+            {searchResults.length > 0 ? (
+              searchResults.map(({title}) => (
+                <li key={title}>{title}</li>
+              ))
+            ) : (
+              <li>No matching movies.</li>
+
+            )}
+          </ul>
+        )}
 
         <h1>Movie List</h1>
-        {list()}
+
+        <button onClick = {() => {
+          if (showList==false) {
+          setShowList(true);
+        } else {
+          setShowList(false)
+        }
+        }}>Show Current Movies</button>
+
+        {showList && (
+          <ul>
+            {movies.map(({title}) => (
+              <li key={title}>{title}</li>
+            )
+          )}
+          </ul>
+        )}
+
 
     </>
   )
